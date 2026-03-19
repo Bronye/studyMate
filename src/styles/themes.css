@@ -1,0 +1,352 @@
+/* ========================================
+   THEME SYSTEM - Elevated & Refined
+   Uses CSS variables that can be switched via data-theme attribute
+   ======================================== */
+
+/* Theme: Arcade (Retro - Default) */
+:root,
+[data-theme='arcade'] {
+  --theme-primary: #FF007A;
+  --theme-primary-dark: #AD0052;
+  --theme-primary-glow: #FF70B1;
+  --theme-accent: #00E5FF;
+  --theme-accent-dark: #008BA3;
+  --theme-accent-glow: #96F7FF;
+  --theme-highlight: #ADFF00;
+  --theme-highlight-dark: #78B000;
+  --theme-highlight-glow: #E0FF96;
+  --theme-background: #0B011D;
+  --theme-surface: #1D123D;
+  --theme-surface-elevated: #2D1D5E;
+  --theme-text-primary: #F0F0FF;
+  --theme-text-secondary: #9D8BA7;
+  --theme-border: rgba(255, 0, 122, 0.4);
+  --theme-border-subtle: rgba(0, 229, 255, 0.2);
+  
+  --theme-btn-shadow: 4px 4px 0 #AD0052;
+  --theme-btn-shadow-hover: 6px 6px 0 #FF70B1;
+  --theme-card-shadow: 6px 6px 0 #050010;
+  --theme-glow-primary: 0 0 10px rgba(255, 0, 122, 0.4), 0 0 20px rgba(255, 0, 122, 0.2), 0 0 40px rgba(255, 0, 122, 0.1);
+  --theme-glow-accent: 0 0 10px rgba(0, 229, 255, 0.4), 0 0 20px rgba(0, 229, 255, 0.2), 0 0 40px rgba(0, 229, 255, 0.1);
+  --theme-glow-highlight: 0 0 10px rgba(173, 255, 0, 0.4), 0 0 20px rgba(173, 255, 0, 0.2), 0 0 40px rgba(173, 255, 0, 0.1);
+  
+  --theme-border-radius: 4px;
+  --theme-font-display: 'Press Start 2P', cursive;
+  --theme-font-body: 'Inter', sans-serif; /* Upgraded for legibility */
+  
+  --theme-font-size-xs: 0.75rem;
+  --theme-font-size-sm: 0.875rem;
+  --theme-font-size-base: 1rem;
+  --theme-font-size-lg: 1.125rem;
+  --theme-font-size-xl: 1.25rem;
+  --theme-font-size-2xl: 1.5rem;
+  --theme-font-size-3xl: 1.875rem;
+  --theme-font-size-4xl: 2.25rem;
+  
+  --theme-line-height-tight: 1.2;
+  --theme-line-height-normal: 1.5;
+  --theme-line-height-relaxed: 1.6;
+  
+  --theme-transition-speed: 200ms;
+  --theme-pulse-animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Theme: Minimal (Sleek Vercel-like Monochrome) */
+[data-theme='minimal'] {
+  --theme-primary: #171717; /* High contrast dark */
+  --theme-primary-dark: #000000;
+  --theme-primary-glow: #404040;
+  --theme-accent: #0A66C2; /* Professional sleek blue */
+  --theme-accent-dark: #004182;
+  --theme-accent-glow: #4092ED;
+  --theme-highlight: #EA580C;
+  --theme-highlight-dark: #C2410C;
+  --theme-highlight-glow: #F97316;
+  
+  --theme-background: #FFFFFF;
+  --theme-surface: #FAFAFA;
+  --theme-surface-elevated: #F4F4F5;
+  --theme-text-primary: #09090B;
+  --theme-text-secondary: #71717A;
+  
+  --theme-border: rgba(0, 0, 0, 0.1);
+  --theme-border-subtle: rgba(0, 0, 0, 0.05);
+  
+  --theme-btn-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --theme-btn-shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.1);
+  --theme-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  
+  --theme-glow-primary: none;
+  --theme-glow-accent: none;
+  --theme-glow-highlight: none;
+  
+  --theme-border-radius: 12px;
+  --theme-font-display: 'Inter', sans-serif;
+  --theme-font-body: 'Inter', sans-serif;
+  
+  --theme-transition-speed: 300ms;
+  --theme-pulse-animation: none;
+  
+  --theme-font-size-xs: 0.75rem;
+  --theme-font-size-sm: 0.875rem;
+  --theme-font-size-base: 1rem;
+  --theme-font-size-lg: 1.125rem;
+  --theme-font-size-xl: 1.25rem;
+  --theme-font-size-2xl: 1.5rem;
+  --theme-font-size-3xl: 1.875rem;
+  --theme-font-size-4xl: 2.25rem;
+  
+  --theme-line-height-tight: 1.15;
+  --theme-line-height-normal: 1.5;
+  --theme-line-height-relaxed: 1.6;
+}
+
+/* Theme: Cyberpunk (HDR Neon) */
+[data-theme='cyberpunk'] {
+  --theme-primary: #00D4FF;
+  --theme-primary-dark: #00A8CC;
+  --theme-primary-glow: rgba(0, 212, 255, 0.8);
+  --theme-accent: #BF00FF;
+  --theme-accent-dark: #9900CC;
+  --theme-accent-glow: rgba(191, 0, 255, 0.8);
+  --theme-highlight: #FFE135;
+  --theme-highlight-dark: #CCB42A;
+  --theme-highlight-glow: rgba(255, 225, 53, 0.8);
+  
+  --theme-background: #05050A; /* Deeper black for higher contrast */
+  --theme-surface: #0f0f1c;
+  --theme-surface-elevated: #1a1a2b;
+  --theme-text-primary: #FFFFFF;
+  --theme-text-secondary: #A1A1AA;
+  
+  --theme-border: rgba(0, 212, 255, 0.5);
+  --theme-border-subtle: rgba(0, 212, 255, 0.15);
+  
+  --theme-btn-shadow: 0 0 15px rgba(0, 212, 255, 0.4), inset 0 0 5px rgba(0, 212, 255, 0.2);
+  --theme-btn-shadow-hover: 0 0 25px rgba(0, 212, 255, 0.6), inset 0 0 10px rgba(0, 212, 255, 0.3);
+  --theme-card-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+  
+  --theme-glow-primary: 0 0 15px rgba(0, 212, 255, 0.5), 0 0 30px rgba(0, 212, 255, 0.3), 0 0 45px rgba(0, 212, 255, 0.1);
+  --theme-glow-accent: 0 0 15px rgba(191, 0, 255, 0.5), 0 0 30px rgba(191, 0, 255, 0.3), 0 0 45px rgba(191, 0, 255, 0.1);
+  --theme-glow-highlight: 0 0 15px rgba(255, 225, 53, 0.5), 0 0 30px rgba(255, 225, 53, 0.3), 0 0 45px rgba(255, 225, 53, 0.1);
+  
+  --theme-border-radius: 6px;
+  --theme-font-display: 'Orbitron', sans-serif;
+  --theme-font-body: 'Inter', sans-serif; /* Upgraded */
+  
+  --theme-transition-speed: 250ms;
+  --theme-pulse-animation: none;
+  
+  --theme-font-size-xs: 0.75rem;
+  --theme-font-size-sm: 0.875rem;
+  --theme-font-size-base: 1rem;
+  --theme-font-size-lg: 1.125rem;
+  --theme-font-size-xl: 1.25rem;
+  --theme-font-size-2xl: 1.5rem;
+  --theme-font-size-3xl: 1.875rem;
+  --theme-font-size-4xl: 2.25rem;
+  
+  --theme-line-height-tight: 1.2;
+  --theme-line-height-normal: 1.5;
+  --theme-line-height-relaxed: 1.6;
+}
+
+/* Theme: Nature/Calm (Earthy & Friendly) */
+[data-theme='nature'] {
+  --theme-primary: #10B981;
+  --theme-primary-dark: #059669;
+  --theme-primary-glow: #34D399;
+  --theme-accent: #0EA5E9;
+  --theme-accent-dark: #0284C7;
+  --theme-accent-glow: #38BDF8;
+  --theme-highlight: #F59E0B;
+  --theme-highlight-dark: #D97706;
+  --theme-highlight-glow: #FBBF24;
+  
+  --theme-background: #FAFAF9; /* Warmer off-white */
+  --theme-surface: #FFFFFF;
+  --theme-surface-elevated: #F0FDF4;
+  --theme-text-primary: #064E3B; /* Deep earth green */
+  --theme-text-secondary: #166534;
+  
+  --theme-border: rgba(16, 185, 129, 0.2);
+  --theme-border-subtle: rgba(16, 185, 129, 0.08);
+  
+  --theme-btn-shadow: 0 4px 14px rgba(16, 185, 129, 0.15), 0 2px 4px rgba(16, 185, 129, 0.1);
+  --theme-btn-shadow-hover: 0 10px 25px rgba(16, 185, 129, 0.25), 0 4px 10px rgba(16, 185, 129, 0.15);
+  --theme-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.04), 0 2px 10px rgba(0, 0, 0, 0.02);
+  
+  --theme-glow-primary: none;
+  --theme-glow-accent: none;
+  --theme-glow-highlight: none;
+  
+  --theme-border-radius: 20px; /* Friendlier curves */
+  --theme-font-display: 'Outfit', sans-serif;
+  --theme-font-body: 'Inter', sans-serif;
+  
+  --theme-transition-speed: 400ms; /* Slightly slower for calm vibe */
+  --theme-pulse-animation: none;
+  
+  --theme-font-size-xs: 0.75rem;
+  --theme-font-size-sm: 0.875rem;
+  --theme-font-size-base: 1rem;
+  --theme-font-size-lg: 1.125rem;
+  --theme-font-size-xl: 1.25rem;
+  --theme-font-size-2xl: 1.5rem;
+  --theme-font-size-3xl: 1.875rem;
+  --theme-font-size-4xl: 2.25rem;
+  
+  --theme-line-height-tight: 1.2;
+  --theme-line-height-normal: 1.6;
+  --theme-line-height-relaxed: 1.8;
+}
+
+/* Theme: Soft Pastel - Calm, approachable, reduce testing anxiety */
+[data-theme='pastel'] {
+  --theme-primary: #FFB347;
+  --theme-primary-dark: #E6A040;
+  --theme-primary-glow: #FFCC80;
+  --theme-accent: #87CEEB;
+  --theme-accent-dark: #6BB8DB;
+  --theme-accent-glow: #A8DFFF;
+  --theme-highlight: #98D8AA;
+  --theme-highlight-dark: #7AC495;
+  --theme-highlight-glow: #B8E8C4;
+  
+  --theme-background: #FFFBF5;
+  --theme-surface: #FFFFFF;
+  --theme-surface-elevated: #FFF4E5;
+  --theme-text-primary: #3E2F24;
+  --theme-text-secondary: #8C7565;
+  
+  --theme-border: rgba(255, 179, 71, 0.2);
+  --theme-border-subtle: rgba(255, 179, 71, 0.1);
+  
+  --theme-btn-shadow: 0 6px 16px rgba(255, 179, 71, 0.2);
+  --theme-btn-shadow-hover: 0 12px 28px rgba(255, 179, 71, 0.3);
+  --theme-card-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+  
+  --theme-glow-primary: none;
+  --theme-glow-accent: none;
+  --theme-glow-highlight: none;
+  
+  --theme-border-radius: 28px; /* Extremely pill-like / soft */
+  --theme-font-display: 'Outfit', sans-serif;
+  --theme-font-body: 'Inter', sans-serif;
+  
+  --theme-transition-speed: 400ms;
+  --theme-pulse-animation: none;
+  
+  --theme-font-size-xs: 0.75rem;
+  --theme-font-size-sm: 0.875rem;
+  --theme-font-size-base: 1rem;
+  --theme-font-size-lg: 1.125rem;
+  --theme-font-size-xl: 1.25rem;
+  --theme-font-size-2xl: 1.5rem;
+  --theme-font-size-3xl: 1.875rem;
+  --theme-font-size-4xl: 2.25rem;
+  
+  --theme-line-height-tight: 1.25;
+  --theme-line-height-normal: 1.6;
+  --theme-line-height-relaxed: 1.75;
+}
+
+/* Theme: Cyber Space (Midnight OLED) - High-energy dark mode */
+[data-theme='cyberspace'] {
+  --theme-primary: #854CF6; /* Luminous violet */
+  --theme-primary-dark: #6431C9;
+  --theme-primary-glow: #B68DFF;
+  --theme-accent: #00E1FF;
+  --theme-accent-dark: #00A3B8;
+  --theme-accent-glow: #8DF2FF;
+  --theme-highlight: #FF3B8A;
+  --theme-highlight-dark: #C9165E;
+  --theme-highlight-glow: #FF87BA;
+  
+  --theme-background: #000000; /* True pure black for OLED / striking contrast */
+  --theme-surface: #0A0A0A; /* Barely lighter than black */
+  --theme-surface-elevated: #141414;
+  --theme-text-primary: #FAFAFA;
+  --theme-text-secondary: #A1A1AA;
+  
+  --theme-border: rgba(133, 76, 246, 0.3);
+  --theme-border-subtle: rgba(255, 255, 255, 0.05); /* Modern subtle white borders */
+  
+  --theme-btn-shadow: 0 0 25px rgba(133, 76, 246, 0.3);
+  --theme-btn-shadow-hover: 0 0 40px rgba(133, 76, 246, 0.5);
+  --theme-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05); /* Outer shadow + inner rim light */
+  
+  --theme-glow-primary: 0 0 20px rgba(133, 76, 246, 0.4), 0 0 40px rgba(133, 76, 246, 0.2);
+  --theme-glow-accent: 0 0 20px rgba(0, 225, 255, 0.4), 0 0 40px rgba(0, 225, 255, 0.2);
+  --theme-glow-highlight: 0 0 20px rgba(255, 59, 138, 0.4), 0 0 40px rgba(255, 59, 138, 0.2);
+  
+  --theme-border-radius: 16px;
+  --theme-font-display: 'Outfit', sans-serif;
+  --theme-font-body: 'Inter', sans-serif;
+  
+  --theme-transition-speed: 250ms;
+  --theme-pulse-animation: none;
+  
+  --theme-font-size-xs: 0.75rem;
+  --theme-font-size-sm: 0.875rem;
+  --theme-font-size-base: 1rem;
+  --theme-font-size-lg: 1.125rem;
+  --theme-font-size-xl: 1.25rem;
+  --theme-font-size-2xl: 1.5rem;
+  --theme-font-size-3xl: 1.875rem;
+  --theme-font-size-4xl: 2.25rem;
+  
+  --theme-line-height-tight: 1.2;
+  --theme-line-height-normal: 1.5;
+  --theme-line-height-relaxed: 1.6;
+}
+
+/* Theme: Quest RPG - Tactile, game-y */
+[data-theme='rpg'] {
+  --theme-primary: #8B4513;
+  --theme-primary-dark: #6B3410;
+  --theme-primary-glow: #A0522D;
+  --theme-accent: #4169E1;
+  --theme-accent-dark: #3250B0;
+  --theme-accent-glow: #6495ED;
+  --theme-highlight: #FFD700;
+  --theme-highlight-dark: #CCB000;
+  --theme-highlight-glow: #FFE566;
+  
+  --theme-background: #EDE1D1; /* Smoother parchment */
+  --theme-surface: #F5EAE0;
+  --theme-surface-elevated: #FFFaf2;
+  --theme-text-primary: #2A1810;
+  --theme-text-secondary: #5C4A42;
+  
+  --theme-border: rgba(139, 69, 19, 0.3);
+  --theme-border-subtle: rgba(139, 69, 19, 0.1);
+  
+  --theme-btn-shadow: 0 4px 0 #6B3410, 0 6px 12px rgba(0, 0, 0, 0.15);
+  --theme-btn-shadow-hover: 0 6px 0 #6B3410, 0 10px 20px rgba(0, 0, 0, 0.2);
+  --theme-card-shadow: 0 4px 0 rgba(139, 69, 19, 0.2), 0 8px 16px rgba(0, 0, 0, 0.08);
+  
+  --theme-glow-primary: none;
+  --theme-glow-accent: none;
+  --theme-glow-highlight: 0 0 15px rgba(255, 215, 0, 0.5);
+  
+  --theme-border-radius: 8px;
+  --theme-font-display: 'Outfit', sans-serif;
+  --theme-font-body: 'Inter', sans-serif;
+  
+  --theme-transition-speed: 150ms;
+  --theme-pulse-animation: none;
+  
+  --theme-font-size-xs: 0.75rem;
+  --theme-font-size-sm: 0.875rem;
+  --theme-font-size-base: 1rem;
+  --theme-font-size-lg: 1.125rem;
+  --theme-font-size-xl: 1.25rem;
+  --theme-font-size-2xl: 1.5rem;
+  --theme-font-size-3xl: 1.875rem;
+  --theme-font-size-4xl: 2.25rem;
+  
+  --theme-line-height-tight: 1.25;
+  --theme-line-height-normal: 1.5;
+  --theme-line-height-relaxed: 1.75;
+}

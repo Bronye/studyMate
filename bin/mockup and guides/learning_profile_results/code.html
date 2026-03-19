@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Your Learning Sprite</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec5b13", // Punchy Coral
+                        "background-light": "#f8f6f6", // Soft Stone/Oatmeal
+                        "background-dark": "#221610",
+                        "vivid-violet": "#8b5cf6",
+                        "electric-emerald": "#10b981",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass {
+            background: rgba(34, 22, 16, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="max-w-4xl mx-auto p-4 md:p-8 space-y-6">
+<!-- Header Section -->
+<header class="flex items-center justify-between p-6 rounded-2xl glass shadow-sm">
+<div class="flex items-center gap-4">
+<div class="size-16 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary/30 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Cute 3D avatar of a friendly learning sprite" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcs-D7P5wArArPlk9y_tpUzVFi6pNshzUGAG-2nQHBjDcOzKyjW0szvNaFCrut0dUhJfn5Ejrc5cXp0_ln0M6ZrrtfGq_TiWTEH5FJMpR90xS8GkBcSJO5-9PhZMIV7MeSjDItJMNF1EDJktRgHDzEfAC-KsGyO6WUraGY8wVoju11XCK2VKLS2ELdo_250nLP_6Dd4uKgL_NSJDf8217yjPo4Ck_mQXAAKzvfHVOMOhNv_rl_sRoMnf2ziM7Ri4LQueowFXpj9Zcu"/>
+</div>
+<div>
+<h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Your Learning Sprite is Born!</h1>
+<p class="text-slate-600 dark:text-slate-400 font-medium">Welcome to your educational journey</p>
+</div>
+</div>
+<button class="size-10 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</header>
+<!-- Main Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Left Column: Radar Chart -->
+<div class="md:col-span-7 p-8 rounded-2xl glass flex flex-col items-center justify-center min-h-[400px]">
+<h2 class="text-lg font-bold mb-8 self-start">Personality Profile</h2>
+<div class="relative w-full aspect-square max-w-[320px]">
+<!-- Radar Chart SVG -->
+<svg class="w-full h-full transform -rotate-18" viewbox="0 0 200 200">
+<!-- Background Pentagons -->
+<polygon class="stroke-slate-300 dark:stroke-slate-700" fill="none" points="100,10 185.5,72.2 152.8,172.8 47.2,172.8 14.5,72.2" stroke-width="1"></polygon>
+<polygon class="stroke-slate-300 dark:stroke-slate-700" fill="none" points="100,40 157,83.4 135.2,150.2 64.8,150.2 43,83.4" stroke-width="1"></polygon>
+<polygon class="stroke-slate-300 dark:stroke-slate-700" fill="none" points="100,70 128.5,94.6 117.6,127.6 82.4,127.6 71.5,94.6" stroke-width="1"></polygon>
+<!-- Axis Lines -->
+<line class="stroke-electric-emerald/40" stroke-width="2" x1="100" x2="100" y1="100" y2="10"></line>
+<line class="stroke-electric-emerald/40" stroke-width="2" x1="100" x2="185.5" y1="100" y2="72.2"></line>
+<line class="stroke-electric-emerald/40" stroke-width="2" x1="100" x2="152.8" y1="100" y2="172.8"></line>
+<line class="stroke-electric-emerald/40" stroke-width="2" x1="100" x2="47.2" y1="100" y2="172.8"></line>
+<line class="stroke-electric-emerald/40" stroke-width="2" x1="100" x2="14.5" y1="100" y2="72.2"></line>
+<!-- Data Area -->
+<polygon class="stroke-vivid-violet" fill="rgba(139, 92, 246, 0.4)" points="100,30 160,85 130,160 60,150 35,75" stroke-width="3"></polygon>
+</svg>
+<!-- Labels -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 text-xs font-bold uppercase tracking-widest text-vivid-violet">Visual</div>
+<div class="absolute top-[35%] -right-8 text-xs font-bold uppercase tracking-widest text-vivid-violet">Auditory</div>
+<div class="absolute bottom-0 right-4 text-xs font-bold uppercase tracking-widest text-vivid-violet">Social</div>
+<div class="absolute bottom-0 left-4 text-xs font-bold uppercase tracking-widest text-vivid-violet">Analytical</div>
+<div class="absolute top-[35%] -left-10 text-xs font-bold uppercase tracking-widest text-vivid-violet">Planning</div>
+</div>
+</div>
+<!-- Right Column: Results & Sub-traits -->
+<div class="md:col-span-5 space-y-6">
+<!-- Primary Style Card -->
+<div class="p-6 rounded-2xl glass bg-primary/5 border-primary/20">
+<span class="text-primary font-bold text-xs uppercase tracking-widest">Primary Style</span>
+<h3 class="text-2xl font-extrabold mt-1">The Architect</h3>
+<p class="text-slate-700 dark:text-slate-300 font-medium text-sm mt-2">Visual &amp; Strategic</p>
+<p class="text-slate-600 dark:text-slate-400 text-sm mt-4 leading-relaxed">
+                        You excel at transforming complex ideas into structured, visual frameworks. Your sprite thrives when given a roadmap and a canvas.
+                    </p>
+</div>
+<!-- Sub-traits Grid -->
+<div class="grid grid-cols-2 gap-4">
+<div class="p-4 rounded-xl glass flex flex-col items-center text-center">
+<div class="relative size-12 mb-2">
+<svg class="size-full" viewbox="0 0 36 36">
+<circle class="stroke-slate-200 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+<circle class="stroke-electric-emerald" cx="18" cy="18" fill="none" r="16" stroke-dasharray="100" stroke-dashoffset="15" stroke-linecap="round" stroke-width="3"></circle>
+</svg>
+<span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">85%</span>
+</div>
+<span class="text-xs font-bold text-slate-500">Focus</span>
+</div>
+<div class="p-4 rounded-xl glass flex flex-col items-center text-center">
+<div class="relative size-12 mb-2">
+<svg class="size-full" viewbox="0 0 36 36">
+<circle class="stroke-slate-200 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+<circle class="stroke-vivid-violet" cx="18" cy="18" fill="none" r="16" stroke-dasharray="100" stroke-dashoffset="28" stroke-linecap="round" stroke-width="3"></circle>
+</svg>
+<span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">72%</span>
+</div>
+<span class="text-xs font-bold text-slate-500">Memory</span>
+</div>
+<div class="p-4 rounded-xl glass flex flex-col items-center text-center">
+<div class="relative size-12 mb-2">
+<svg class="size-full" viewbox="0 0 36 36">
+<circle class="stroke-slate-200 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+<circle class="stroke-primary" cx="18" cy="18" fill="none" r="16" stroke-dasharray="100" stroke-dashoffset="10" stroke-linecap="round" stroke-width="3"></circle>
+</svg>
+<span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">90%</span>
+</div>
+<span class="text-xs font-bold text-slate-500">Logic</span>
+</div>
+<div class="p-4 rounded-xl glass flex flex-col items-center text-center">
+<div class="relative size-12 mb-2">
+<svg class="size-full" viewbox="0 0 36 36">
+<circle class="stroke-slate-200 dark:stroke-slate-800" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+<circle class="stroke-slate-400" cx="18" cy="18" fill="none" r="16" stroke-dasharray="100" stroke-dashoffset="40" stroke-linecap="round" stroke-width="3"></circle>
+</svg>
+<span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">60%</span>
+</div>
+<span class="text-xs font-bold text-slate-500">Speed</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Call to Action -->
+<div class="pt-8 flex justify-center">
+<button class="bg-primary hover:scale-105 active:scale-95 transition-all text-white font-extrabold py-5 px-12 rounded-2xl shadow-xl shadow-primary/40 text-xl tracking-tight flex items-center gap-3">
+                Enter the Quest Hub
+                <span class="material-symbols-outlined">rocket_launch</span>
+</button>
+</div>
+<!-- Background Decor -->
+<div class="fixed top-0 left-0 w-full h-full -z-10 opacity-30 pointer-events-none">
+<div class="absolute top-[10%] left-[5%] w-64 h-64 bg-primary/20 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-[20%] right-[10%] w-96 h-96 bg-vivid-violet/10 rounded-full blur-[120px]"></div>
+<div class="absolute top-[40%] right-[5%] w-48 h-48 bg-electric-emerald/10 rounded-full blur-[80px]"></div>
+</div>
+</div>
+</body></html>

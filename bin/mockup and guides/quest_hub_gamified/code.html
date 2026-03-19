@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quest Hub - Naija-Vibe</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ff7f50",
+                        "soft-stone": "#ECECE4",
+                        "background-dark": "#1a1a15",
+                        "emerald-accent": "#2ecc71",
+                        "violet-accent": "#a29bfe",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "1.5rem",
+                        "xl": "2rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }</script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    @keyframes soft-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 127, 80, 0.7); }
+        70% { box-shadow: 0 0 0 20px rgba(255, 127, 80, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 127, 80, 0); }
+    }
+    .hero-pulse {
+        animation: soft-pulse 2s infinite;
+    }
+</style></head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased bg-soft-stone">
+<div class="relative mx-auto max-w-md min-h-screen dark:bg-background-dark flex flex-col pb-24 bg-soft-stone">
+<!-- Header Section -->
+<header class="sticky top-0 z-20 flex items-center justify-between p-4 dark:bg-background-dark/80 backdrop-blur-md bg-transparent"><div class="flex items-center gap-3">
+<div class="bg-white/50 dark:bg-black/20 p-2.5 rounded-xl shadow-inner-sm border border-white/40 backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary text-2xl">pentagon</span>
+</div>
+<div>
+<h1 class="text-lg font-extrabold tracking-tight text-slate-800 dark:text-slate-100">Quest Hub</h1>
+<div class="flex items-center gap-1 opacity-80">
+<span class="material-symbols-outlined text-[14px] text-emerald-accent fill-1">shield</span>
+<span class="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Safe Mode</span>
+</div>
+</div>
+</div>
+<button class="size-11 rounded-full border-2 border-white/60 bg-white/40 dark:bg-black/20 backdrop-blur-md shadow-lg flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-primary font-bold">person</span>
+</button></header>
+<!-- Bento Stats Section -->
+<div class="grid grid-cols-2 gap-4 p-4">
+<!-- Streak Card -->
+<div class="relative overflow-hidden p-5 rounded-2xl bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/10 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.05)]"><div class="flex flex-col gap-2 relative z-10">
+<div class="flex items-center justify-between">
+<div class="size-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-2xl fill-1">local_fire_department</span>
+</div>
+<span class="text-[10px] font-black text-emerald-accent bg-emerald-accent/10 px-2 py-1 rounded-full border border-emerald-accent/20">STREAK</span>
+</div>
+<div>
+<p class="text-4xl font-black text-slate-800 dark:text-white tracking-tighter">15</p>
+<p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Day Streak</p>
+</div>
+</div>
+<div class="absolute -bottom-4 -right-4 opacity-5">
+<span class="material-symbols-outlined text-8xl">local_fire_department</span>
+</div></div>
+<!-- Gems Card -->
+<div class="relative overflow-hidden p-5 rounded-2xl bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/10 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.05)]"><div class="flex flex-col gap-2 relative z-10">
+<div class="flex items-center justify-between">
+<div class="size-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-violet-accent text-2xl fill-1">diamond</span>
+</div>
+<span class="text-[10px] font-black text-violet-accent bg-violet-accent/10 px-2 py-1 rounded-full border border-violet-accent/20">XP</span>
+</div>
+<div>
+<p class="text-4xl font-black text-slate-800 dark:text-white tracking-tighter">1,250</p>
+<p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Gems</p>
+</div>
+</div>
+<div class="absolute -bottom-4 -right-4 opacity-5">
+<span class="material-symbols-outlined text-8xl">diamond</span>
+</div></div>
+</div>
+<!-- Learning Path Section -->
+<div class="flex flex-col items-center py-8 space-y-12">
+<!-- Civic Education Node -->
+<div class="relative flex flex-col items-center"><div class="relative">
+<div class="size-32 rounded-full border-[10px] border-white/50 dark:border-white/5 shadow-inner flex items-center justify-center relative">
+<div class="absolute inset-0 rounded-full border-[10px] border-emerald-accent border-t-transparent -rotate-45 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"></div>
+<div class="size-20 rounded-full bg-white dark:bg-slate-800 shadow-[0_10px_20px_rgba(0,0,0,0.1),inset_0_-4px_0_rgba(0,0,0,0.05)] flex items-center justify-center z-10 border-2 border-white/80">
+<span class="material-symbols-outlined text-4xl text-emerald-accent font-bold">account_balance</span>
+</div>
+</div>
+</div>
+<div class="mt-4 text-center">
+<h3 class="font-black text-slate-800 dark:text-slate-100 text-sm tracking-tight">Civic Education</h3>
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Unit 4: Democracy</p>
+</div>
+<div class="h-16 w-2 bg-gradient-to-b from-emerald-accent to-primary my-4 rounded-full shadow-inner opacity-40"></div></div>
+<!-- Mathematics Node -->
+<div class="relative flex flex-col items-center translate-x-12"><div class="relative">
+<div class="size-32 rounded-full border-[10px] border-white/50 dark:border-white/5 shadow-inner flex items-center justify-center relative">
+<div class="absolute inset-0 rounded-full border-[10px] border-primary border-l-transparent rotate-12 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"></div>
+<div class="size-20 rounded-full bg-white dark:bg-slate-800 shadow-[0_10px_20px_rgba(0,0,0,0.1),inset_0_-4px_0_rgba(0,0,0,0.05)] flex items-center justify-center z-10 border-2 border-white/80">
+<span class="material-symbols-outlined text-4xl text-primary font-bold">calculate</span>
+</div>
+</div>
+</div>
+<div class="mt-4 text-center">
+<h3 class="font-black text-slate-800 dark:text-slate-100 text-sm tracking-tight">Mathematics</h3>
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Algebra Essentials</p>
+</div>
+<div class="h-16 w-2 bg-gradient-to-b from-primary to-violet-accent my-4 rounded-full shadow-inner opacity-40"></div></div>
+<!-- English Language Node -->
+<div class="relative flex flex-col items-center -translate-x-12"><div class="relative">
+<div class="size-32 rounded-full border-[10px] border-white/50 dark:border-white/5 shadow-inner flex items-center justify-center relative">
+<div class="absolute inset-0 rounded-full border-[10px] border-violet-accent border-b-transparent border-r-transparent shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"></div>
+<div class="size-20 rounded-full bg-white dark:bg-slate-800 shadow-[0_10px_20px_rgba(0,0,0,0.1),inset_0_-4px_0_rgba(0,0,0,0.05)] flex items-center justify-center z-10 border-2 border-white/80">
+<span class="material-symbols-outlined text-4xl text-violet-accent font-bold">menu_book</span>
+</div>
+</div>
+</div>
+<div class="mt-4 text-center">
+<h3 class="font-black text-slate-800 dark:text-slate-100 text-sm tracking-tight">English Language</h3>
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Grammar Rules</p>
+</div>
+<div class="h-16 w-2 bg-slate-300 dark:bg-slate-700 my-4 rounded-full border-dashed border-2 opacity-40"></div></div>
+<!-- Locked Node -->
+<div class="relative flex flex-col items-center opacity-50 grayscale"><div class="relative opacity-40 grayscale">
+<div class="size-32 rounded-full border-[10px] border-slate-300/30 shadow-inner flex items-center justify-center relative">
+<div class="size-20 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center z-10 border-2 border-white/80">
+<span class="material-symbols-outlined text-4xl text-slate-400 font-bold">lock</span>
+</div>
+</div>
+</div>
+<div class="mt-4 text-center opacity-40">
+<h3 class="font-black text-slate-800 dark:text-slate-100 text-sm tracking-tight">Economics</h3>
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Coming Soon</p>
+</div></div>
+</div>
+<!-- Floating Hero Button -->
+<div class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50">
+<button class="bg-primary hover:scale-105 transition-all size-18 rounded-full flex items-center justify-center text-white border-4 border-white dark:border-background-dark group hero-pulse shadow-[0_10px_30px_rgba(255,127,80,0.5)]"><span class="material-symbols-outlined text-4xl group-active:scale-90 transition-transform">photo_camera</span>
+<span class="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-4 py-1.5 rounded-full whitespace-nowrap font-black tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">Snap to Study</span></button>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 z-40 bg-soft-stone/80 dark:bg-background-dark/90 border-t border-white/60 dark:border-white/5 backdrop-blur-xl">
+<div class="mx-auto max-w-md flex justify-around items-center h-20 px-4 bg-soft-stone">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined text-2xl fill-1">grid_view</span>
+<span class="text-[10px] font-bold">Hub</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined text-2xl">rocket_launch</span>
+<span class="text-[10px] font-bold">Quests</span>
+</a>
+<div class="w-16"></div> <!-- Spacer for FAB -->
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined text-2xl">leaderboard</span>
+<span class="text-[10px] font-bold">Rank</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined text-2xl">person_search</span>
+<span class="text-[10px] font-bold">Tutor</span>
+</a>
+</div>
+</nav>
+</div>
+</body></html>
