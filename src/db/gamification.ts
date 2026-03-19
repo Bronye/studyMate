@@ -650,7 +650,7 @@ export async function recordXPTransaction(
     synced: false
   };
   
-  return await gamificationDB.xpTransactions.add(transaction);
+  return await gamificationDB.xpTransactions.add(transaction) as number;
 }
 
 export async function getXPHistory(studentId: string, limit: number = 50): Promise<XPTransaction[]> {

@@ -159,7 +159,7 @@ export const db = new StudyMateDB();
 // =======================
 
 export async function saveStudentProfile(profile: StudentProfile): Promise<number> {
-  return await db.students.put(profile);
+  return await db.students.put(profile) as number;
 }
 
 export async function getStudentProfile(studentId: string): Promise<StudentProfile | undefined> {
@@ -167,7 +167,7 @@ export async function getStudentProfile(studentId: string): Promise<StudentProfi
 }
 
 export async function saveQuiz(quiz: Quiz): Promise<number> {
-  return await db.quizzes.put(quiz);
+  return await db.quizzes.put(quiz) as number;
 }
 
 export async function getQuiz(quizId: string): Promise<Quiz | undefined> {
@@ -195,7 +195,7 @@ export async function saveQuizAttempt(attempt: QuizAttempt): Promise<number> {
     status: 'pending'
   });
   
-  return id;
+  return id as number;
 }
 
 export async function getPendingSyncItems(): Promise<SyncQueueItem[]> {
@@ -246,7 +246,7 @@ export async function markQuizCompletedDB(quizId: string, studentId: string): Pr
     studentId,
     completedAt: new Date()
   };
-  return await db.completedQuizzes.put(completed);
+  return await db.completedQuizzes.put(completed) as number;
 }
 
 export async function isQuizCompletedDB(quizId: string, studentId: string): Promise<boolean> {
