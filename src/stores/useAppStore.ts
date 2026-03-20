@@ -61,6 +61,7 @@ interface AppState {
   signUp: (username: string, email: string, password: string) => Promise<boolean>;
   markSplashSeen: () => void;
   setFirstTimeUser: (value: boolean) => void;
+  createGuestUser: () => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -581,6 +582,72 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (error) {
       console.error('[Auth] Signup error:', error);
       return false;
+    }
+  },
+
+  // NEW: Create guest user for quick testing
+  createGuestUser: async () => {
+    try {
+      const guestStudent: StudentProfile = {
+        studentId: 'guest_user',
+        username: 'GuestTester',
+        name: 'Guest Tester',
+        grade: 'SSS2',
+        xp: 500,
+        gems: 100,
+        streak: 5,
+        completedQuizzes: ['sample_1', 'sample_2'],
+        avatar: {
+          level: 3,
+          xp: 500,
+          streak: 5,
+          unlockedAccessories: ['blue_hat', 'gold_frame'],
+          mood: 'excited',
+          expression: 'celebrating'
+        },
+        persona: {
+          studentId: 'guest_user',
+          personaType: 'visual',
+          cognitiveProfile: {
+            processingSpeed: 7,
+            memoryStrength: 'working',
+            attentionSpan: 30,
+            criticalThinking: 7,
+            eqBaseline: 'encouraging'
+          },
+          subjectStrengths: [
+            { subject: 'mathematics', proficiency: 7, interest: 8 },
+            { subject: 'english', proficiency: 6, interest: 7 }
+          ],
+          preferredDifficulty: 'medium',
+          studyPatterns: {
+            peakHours: [9, 10, 11, 15, 16, 17],
+            sessionDuration: 30,
+            breakFrequency: 2
+          },
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      // Save to IndexedDB
+      await db.students.put(guestStudent);
+
+      // Update store
+      set({
+        currentStudent: guestStudent,
+        isAuthenticated: true,
+        hasSeenSplash: true,
+        isOnboarded: true
+      });
+
+      localStorage.setItem('studymate_session', 'true');
+      localStorage.setItem('studymate_splash_seen', 'true');
+      console.log('[Auth] Guest user created for quick testing');
+    } catch (error) {
+      console.error('[Auth] Error creating guest user:', error);
     }
   }
 }));

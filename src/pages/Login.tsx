@@ -166,7 +166,7 @@ export default function Login() {
             <p style={{ color: 'var(--theme-text-secondary)' }}>
               Don't have an account?{' '}
               <Link 
-                to="/onboarding" 
+                to="/signup" 
                 className="font-medium hover:underline"
                 style={{ color: 'var(--theme-primary)' }}
               >
@@ -176,14 +176,19 @@ export default function Login() {
           </div>
         </div>
         
-        {/* Skip for now */}
+        {/* Guest Quick Test - for testing */}
         <div className="mt-6 text-center">
           <button
-            onClick={() => navigate('/home')}
+            onClick={async () => {
+              // Create a predefined guest user for quick testing
+              const { createGuestUser } = useAppStore.getState();
+              await createGuestUser();
+              navigate('/home');
+            }}
             className="text-sm hover:underline"
             style={{ color: 'var(--theme-text-secondary)' }}
           >
-            Continue as Guest
+            Guest Quick Test
           </button>
         </div>
       </motion.div>

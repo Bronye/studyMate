@@ -17,6 +17,12 @@ export default function Splash() {
         navigate('/login');
     };
 
+    const handleGuestTest = async () => {
+        const { createGuestUser } = useAppStore.getState();
+        await createGuestUser();
+        navigate('/home');
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center p-4"
             style={{ backgroundColor: 'var(--theme-background)' }}>
@@ -68,6 +74,21 @@ export default function Splash() {
                         }}
                     >
                         Sign In
+                    </motion.button>
+
+                    {/* Guest Quick Test */}
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleGuestTest}
+                        className="w-full max-w-md px-6 py-3 rounded-xl text-sm font-medium"
+                        style={{
+                            backgroundColor: 'transparent',
+                            border: '2px solid var(--theme-text-secondary)',
+                            color: 'var(--theme-text-secondary)'
+                        }}
+                    >
+                        Guest Quick Test
                     </motion.button>
                 </div>
             </motion.div>
