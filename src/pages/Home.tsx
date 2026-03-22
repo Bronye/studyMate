@@ -4,12 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../stores/useAppStore';
 import { db, Quiz } from '../db/database';
 import { generateQuizId } from '../utils/generateId';
-import { Shield, User, Flame, Gem, BookOpen, Lightbulb, Calculator, GraduationCap, Book, Languages, Plus, FileJson, X, WifiOff, ShoppingBag, Camera, ChevronDown, History } from 'lucide-react';
+import { Shield, User, Flame, Gem, BookOpen, Lightbulb, Calculator, GraduationCap, Book, Languages, Plus, FileJson, X, WifiOff, Wifi, ShoppingBag, Camera, ChevronDown, History, Home as HomeIcon, User as UserIcon, StickyNote } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { currentStudent, addXP, updateStreak, completedQuizzes, isQuizCompleted } = useAppStore();
+  const { currentStudent, addXP, updateStreak, completedQuizzes, isQuizCompleted, isOnline } = useAppStore();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -20,6 +20,15 @@ export default function Home() {
   // NEW: Quiz display state
   const [showAllQuizzes, setShowAllQuizzes] = useState(false);
   const MAX_VISIBLE_QUIZZES = 4;
+  
+  // Check if mobile screen
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   useEffect(() => {
     loadQuizzes();
@@ -117,6 +126,108 @@ export default function Home() {
   
   const avatar = currentStudent?.avatar;
   
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 pb-20">
+        {/* Mobile Top Bar */}
+        <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Gems - Left */}
+            <div className="flex items-center gap-1">
+              <Gem className="w-5 h-5 text-accent" />
+              <span className="font-black text-accent">{currentStudent?.gems || 0}</span>
+            </div>
+            {/* Lobby - Center */}
+            <div className="flex flex-col items-center">
+              <span className="font-black text-text-primary">LOBBY</span>
+              <div className="flex items-center gap-1">
+                {isOnline ? <Wifi className="w-3 h-3 text-green-500" /> : <WifiOff className="w-3 h-3 text-amber-500" />}
+                <span className="text-[10px]">{isOnline ? 'Online' : 'Offline'}</span>
+              </div>
+            </div>
+            {/* Streak - Right */}
+            <div className="flex items-center gap-1">
+              <Flame className="w-5 h-5 text-highlight" />
+              <span className="font-black text-highlight">{currentStudent?.streak || 0}</span>
+            </div>
+          </div>
+        </header>
+        
+        {/* Main Content */}
+        <div className="pt-20 px-2 space-y-4">
+          {/* Quest Carousel */}
+          <div className="w-full overflow-x-auto scrollbar-hide py-2">
+            <div className="flex gap-3 px-2" style={{ minWidth: 'max-content' }}>
+              {quizzes.length === 0 ? (
+                <div className="w-72 flex-shrink-0 bg-white/80 rounded-xl p-4 text-center">
+                  <p className="text-text-secondary text-sm">No quests yet</p>
+                </div>
+              ) : (
+                quizzes.slice(0, 6).map((quiz) => (
+                  <motion.button
+                    key={quiz.quizId}
+                    onClick={() => navigate(`/quiz/${quiz.quizId}`)}
+                    className="w-64 flex-shrink-0 bg-white rounded-xl p-4 text-left shadow-md"
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <h3 className="font-bold text-text-primary truncate">{quiz.topic}</h3>
+                    <p className="text-xs text-text-secondary">{quiz.subject}</p>
+                  </motion.button>
+                ))
+              )}
+            </div>
+          </div>
+          
+          {/* Tips Section */}
+          <div className="px-2">
+            <div className="bg-white/80 backdrop-blur rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <Lightbulb className="w-5 h-5 text-accent flex-shrink-0" />
+                <p className="text-sm text-text-primary">
+                  {currentStudent?.persona.personaType === 'visual' 
+                    ? 'Try using diagrams to understand concepts!'
+                    : currentStudent?.persona.personaType === 'auditory'
+                    ? 'Read aloud to improve retention!'
+                    : 'Practice with hands-on exercises!'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* FABs for mobile */}
+        <motion.button
+          onClick={() => navigate('/notes')}
+          className="fixed bottom-20 right-4 w-12 h-12 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-lg flex items-center justify-center z-40"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <StickyNote className="w-5 h-5" />
+        </motion.button>
+        
+        {/* Bottom Navigation */}
+        <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-100 px-4 py-2 z-50">
+          <div className="flex items-center justify-around">
+            <button onClick={() => navigate('/profile')} className="flex flex-col items-center p-2">
+              <UserIcon className="w-6 h-6 text-text-secondary" />
+              <span className="text-[10px] text-text-secondary">Profile</span>
+            </button>
+            <button onClick={() => {}} className="flex flex-col items-center p-2">
+              <ShoppingBag className="w-6 h-6 text-text-secondary" />
+              <span className="text-[10px] text-text-secondary">Shop</span>
+            </button>
+            <button onClick={() => navigate('/home')} className="flex flex-col items-center p-2">
+              <HomeIcon className="w-6 h-6 text-primary" />
+              <span className="text-[10px] text-primary font-bold">Home</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+    );
+  }
+  
+  // Desktop layout (original)
   return (
     <div className="p-4 space-y-6">
       {/* Header with Avatar, Student Profile, Quest Hub and Offline Mode */}

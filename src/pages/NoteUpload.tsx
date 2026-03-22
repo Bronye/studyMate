@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useNoteUploadStore } from '../stores/noteUploadStore';
 import { useAppStore } from '../stores/useAppStore';
+import { WifiOff } from 'lucide-react';
 import { useGamificationStore } from '../stores/gamificationStore';
 import SnapStudyIcon from '../components/icons/SnapStudyIcon';
 import StudyModeIcon from '../components/icons/StudyModeIcon';
@@ -25,6 +26,8 @@ import { StudyTip } from '../services/quizGenerator';
 export default function NoteUpload() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Use real-time online status directly from browser
+  const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
   
   // Get store state and actions
   const {
@@ -118,7 +121,7 @@ export default function NoteUpload() {
   const renderContent = () => {
     switch (state) {
       case 'scanning':
-        return <RenderScanning />;
+        return <RenderScanning isOnline={isOnline} />;
       case 'verifying':
         return (
           <RenderVerifying
@@ -301,9 +304,20 @@ function RenderIdle({
 }
 
 // Scanning State - OCR in progress
-function RenderScanning() {
+function RenderScanning({ isOnline }: { isOnline: boolean }) {
   return (
     <div className="text-center">
+      {/* Offline Warning */}
+      {!isOnline && (
+        <div className="mb-4 p-3 bg-amber-500/20 border border-amber-500/50 rounded-xl flex items-center gap-2">
+          <WifiOff className="w-5 h-5 text-amber-400" />
+          <div className="text-left">
+            <p className="text-sm font-medium text-amber-300">Image Queued</p>
+            <p className="text-xs text-amber-200/70">Your image has been queued and will be processed when you're back online.</p>
+          </div>
+        </div>
+      )}
+      
       {/* Scanning animation */}
       <div className="relative w-32 h-32 mx-auto mb-6">
         <div className="absolute inset-0 border-4 border-white/20 rounded-full"></div>
@@ -317,7 +331,9 @@ function RenderScanning() {
       >
         <FileText className="w-14 h-14 mb-4 mx-auto text-white/60" strokeWidth={2.5} />
         <p className="text-lg font-medium text-white">Analyzing your notes...</p>
-        <p className="text-sm text-white/50 mt-2">Extracting text and structure</p>
+        <p className="text-sm text-white/50 mt-2">
+          {isOnline ? 'Using Gemini AI for best results' : 'Image queued... waiting for network connectivity'}
+        </p>
       </motion.div>
     </div>
   );
@@ -389,7 +405,7 @@ function RenderReady({
 }: {
   extractedText: string;
   confidence: number;
-  ocrSource: 'tesseract' | 'cloud-vision';
+  ocrSource: 'gemini' | 'cloud-vision' | 'queued';
   onStudyNow: () => void;
   onTakeQuiz: () => void;
 }) {

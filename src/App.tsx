@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import Notes from './pages/Notes';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAppStore } from './stores/useAppStore';
 import { useThemeStore } from './stores/themeStore';
@@ -24,6 +25,9 @@ function App() {
   const { isOnline, setOnlineStatus, isOnboarded, checkAndUpdateStreak, loadStudent, isAuthenticated } = useAppStore();
   const { theme } = useThemeStore();
   
+  // Use a state that's initialized with current navigator.onLine - this is the real-time value
+  const [realTimeOnline, setRealTimeOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  
   // Apply theme to root element
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -40,9 +44,21 @@ function App() {
     // Check and update streak on app load (daily login)
     checkAndUpdateStreak();
     
+    // Set initial online status based on navigator.onLine
+    setOnlineStatus(navigator.onLine);
+    setRealTimeOnline(navigator.onLine);
+    
     // Listen for online/offline events
-    const handleOnline = () => setOnlineStatus(true);
-    const handleOffline = () => setOnlineStatus(false);
+    const handleOnline = () => {
+      setOnlineStatus(true);
+      setRealTimeOnline(true);
+      console.log('[Network] Back online!');
+    };
+    const handleOffline = () => {
+      setOnlineStatus(false);
+      setRealTimeOnline(false);
+      console.log('[Network] Gone offline');
+    };
     
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -56,7 +72,7 @@ function App() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-background)' }}>
       {/* Offline Banner */}
-      {!isOnline && <OfflineBanner />}
+      {!realTimeOnline && <OfflineBanner />}
       
       <Routes>
         {/* Splash Screen - New users only */}
@@ -98,6 +114,9 @@ function App() {
           } />
           <Route path="/profile" element={
             !isAuthenticated ? <Navigate to="/splash" replace /> : <Profile />
+          } />
+          <Route path="/notes" element={
+            !isAuthenticated ? <Navigate to="/splash" replace /> : <Notes />
           } />
         </Route>
         

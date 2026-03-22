@@ -37,7 +37,7 @@ interface NoteUploadStore {
   selectedFile: File | null;
   extractedText: string;
   ocrConfidence: number;
-  ocrSource: 'tesseract' | 'cloud-vision';
+  ocrSource: 'gemini' | 'cloud-vision' | 'queued';
   unclearRegions: UnclearRegion[];
   generatedQuiz: Quiz | null | undefined;
   studyTips: StudyTip[];
@@ -58,7 +58,7 @@ interface NoteUploadStore {
   skipVerification: () => Promise<void>;
   
   // NEW: Ready state actions
-  setReady: (text: string, confidence: number, source: 'tesseract' | 'cloud-vision') => void;
+  setReady: (text: string, confidence: number, source: 'gemini' | 'cloud-vision' | 'queued') => void;
   backToReady: () => void;
   startStudying: () => void;
   completeStudySession: (awardBaseXP?: boolean) => Promise<void>;
@@ -74,7 +74,7 @@ const initialState = {
   selectedFile: null,
   extractedText: '',
   ocrConfidence: 0,
-  ocrSource: 'tesseract' as 'tesseract' | 'cloud-vision',
+  ocrSource: 'gemini' as 'gemini' | 'cloud-vision' | 'queued',
   unclearRegions: [],
   generatedQuiz: undefined,
   studyTips: [],
@@ -226,6 +226,20 @@ export const useNoteUploadStore = create<NoteUploadStore>((set, get) => ({
       set({ state: 'scanning', errorMessage: '' });
       
       const ocrResult: OCRResult = await processImage(selectedFile, { useMock: false });
+      
+      // Check if image was queued for offline processing
+      if (ocrResult.source === 'queued') {
+        // Show queued message - image will be processed when back online
+        set({
+          state: 'completed',
+          extractedText: '',
+          ocrConfidence: 0,
+          ocrSource: 'queued',
+          unclearRegions: [],
+          errorMessage: 'Image queued! It will be processed when you\'re back online.'
+        });
+        return;
+      }
       
       // Step 2: Set to 'ready' state - user chooses Study or Quiz
       // Store OCR data for later use

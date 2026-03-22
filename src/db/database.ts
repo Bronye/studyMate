@@ -115,6 +115,19 @@ export interface NoteUpload {
   processedAt?: Date;
 }
 
+// AI-generated study notes saved from quiz sessions
+export interface SavedNote {
+  id?: number;
+  noteId: string;
+  studentId: string;
+  title: string;
+  content: string; // AI-generated explanation/study notes
+  sourceText?: string; // Original extracted text
+  subject?: string;
+  topic?: string;
+  createdAt: Date;
+}
+
 export interface SyncQueueItem {
   id?: number;
   syncId: string;
@@ -136,6 +149,7 @@ class StudyMateDB extends Dexie {
   noteUploads!: Table<NoteUpload>;
   syncQueue!: Table<SyncQueueItem>;
   completedQuizzes!: Table<CompletedQuiz>;
+  savedNotes!: Table<SavedNote>;
 
   constructor() {
     super('StudyMateDB');
@@ -146,7 +160,8 @@ class StudyMateDB extends Dexie {
       quizAttempts: '++id, attemptId, quizId, studentId, synced',
       noteUploads: '++id, uploadId, studentId, status',
       syncQueue: '++id, syncId, action, status',
-      completedQuizzes: '++id, quizId, studentId, completedAt'
+      completedQuizzes: '++id, quizId, studentId, completedAt',
+      savedNotes: '++id, noteId, studentId, subject, topic, createdAt'
     });
   }
 }
@@ -263,4 +278,34 @@ export async function getCompletedQuizzesDB(studentId: string): Promise<string[]
     .equals(studentId)
     .toArray();
   return results.map(r => r.quizId);
+}
+
+// Saved Notes functions
+export async function saveNote(note: SavedNote): Promise<number> {
+  return await db.savedNotes.put(note) as number;
+}
+
+export async function getNotes(studentId: string): Promise<SavedNote[]> {
+  return await db.savedNotes
+    .where('studentId')
+    .equals(studentId)
+    .reverse()
+    .sortBy('createdAt');
+}
+
+export async function getNote(noteId: string): Promise<SavedNote | undefined> {
+  return await db.savedNotes.where('noteId').equals(noteId).first();
+}
+
+export async function deleteNote(noteId: string): Promise<void> {
+  await db.savedNotes.where('noteId').equals(noteId).delete();
+}
+
+// Get all note uploads for a student (for Notes page)
+export async function getNoteUploads(studentId: string): Promise<NoteUpload[]> {
+  return await db.noteUploads
+    .where('studentId')
+    .equals(studentId)
+    .reverse()
+    .sortBy('createdAt');
 }

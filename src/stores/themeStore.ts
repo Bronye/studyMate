@@ -11,7 +11,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: 'arcade',
+      theme: 'rpg',
       setTheme: (theme) => set({ theme }),
     }),
     {

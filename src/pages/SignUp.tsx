@@ -3,10 +3,23 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAppStore } from '../stores/useAppStore';
+import { useThemeStore, ThemeName, themeNames } from '../stores/themeStore';
+
+// Theme color mappings for the small buttons
+const themeColors: Record<ThemeName, { primary: string; accent: string }> = {
+  arcade: { primary: '#FF007A', accent: '#00E5FF' },
+  minimal: { primary: '#171717', accent: '#0A66C2' },
+  cyberpunk: { primary: '#00D4FF', accent: '#BF00FF' },
+  nature: { primary: '#10B981', accent: '#0EA5E9' },
+  pastel: { primary: '#FFB347', accent: '#87CEEB' },
+  cyberspace: { primary: '#854CF6', accent: '#00E1FF' },
+  rpg: { primary: '#8B4513', accent: '#4169E1' },
+};
 
 export default function SignUp() {
     const navigate = useNavigate();
     const { signUp } = useAppStore();
+    const { theme, setTheme } = useThemeStore();
 
     const [formData, setFormData] = useState({
         username: '',
@@ -214,6 +227,36 @@ export default function SignUp() {
                                 Terms and Conditions
                             </a>
                         </label>
+                    </div>
+
+                    {/* Theme Selector */}
+                    <div>
+                        <label
+                            className="block text-sm font-medium mb-3"
+                            style={{ color: 'var(--theme-text-secondary)' }}
+                        >
+                            Choose your theme
+                        </label>
+                        <div className="flex gap-2 flex-wrap">
+                            {(Object.keys(themeNames) as ThemeName[]).map((themeName) => (
+                                <button
+                                    key={themeName}
+                                    type="button"
+                                    onClick={() => setTheme(themeName)}
+                                    className="w-10 h-10 rounded-lg border-2 transition-transform hover:scale-110"
+                                    title={themeNames[themeName]}
+                                    style={{
+                                        borderColor: theme === themeName 
+                                            ? 'var(--theme-primary)' 
+                                            : 'var(--theme-border-subtle)',
+                                        background: `linear-gradient(135deg, ${themeColors[themeName].primary} 50%, ${themeColors[themeName].accent} 50%)`,
+                                        boxShadow: theme === themeName 
+                                            ? '0 0 0 2px var(--theme-primary-glow)' 
+                                            : 'none'
+                                    }}
+                                />
+                            ))}
+                        </div>
                     </div>
 
                     {/* Submit Button */}

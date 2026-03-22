@@ -1,22 +1,22 @@
 // =======================
-// OCR SERVICE - Hybrid Implementation
+// OCR SERVICE - Gemini Vision + Queue Implementation
 // Handwriting-to-JSON Bridge - Part 1
-// Uses Tesseract.js (offline) + Google Cloud Vision (online/pro)
+// Uses Gemini Vision API for OCR + Offline Queue
 // =======================
 
-import { createWorker, Worker, PSM } from 'tesseract.js';
 import * as pdfjsLib from 'pdfjs-dist';
 
 // Set up PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-// Get API key from environment variables
+// Get API keys from environment variables
 const GOOGLE_CLOUD_VISION_API_KEY = import.meta.env.VITE_GOOGLE_CLOUD_VISION_API_KEY || '';
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 export interface OCRResult {
   rawText: string;
   confidence: number;
-  source: 'tesseract' | 'cloud-vision';
+  source: 'gemini' | 'queued';
   spatialLayout?: {
     paragraphs: { text: string; x: number; y: number; width: number; height: number }[];
     lists: { items: string[]; type: 'bullet' | 'numbered' }[];
@@ -39,22 +39,193 @@ interface OCRConfig {
   useMock?: boolean;
   /** Minimum confidence threshold (0-1). Below this, triggers verification. */
   confidenceThreshold?: number;
-  /** Force use of specific provider: 'tesseract' | 'cloud-vision' | 'auto' */
-  provider?: 'tesseract' | 'cloud-vision' | 'auto';
+  /** Force use of specific provider: 'gemini' | 'auto' */
+  provider?: 'gemini' | 'auto';
 }
 
-// Tesseract.js worker instance (cached)
-let tesseractWorker: Worker | null = null;
+// Offline queue for images waiting to be processed
+interface QueuedImage {
+  id: string;
+  file: File;
+  fileData: string; // base64
+  timestamp: number;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+}
+
+let offlineQueue: QueuedImage[] = [];
+
+// Load queue from localStorage on init
+export function loadOfflineQueue(): QueuedImage[] {
+  try {
+    const stored = localStorage.getItem('studymate_offline_queue');
+    if (stored) {
+      offlineQueue = JSON.parse(stored);
+      console.log('[OCR] Loaded offline queue:', offlineQueue.length, 'items');
+    }
+  } catch (e) {
+    console.error('[OCR] Failed to load offline queue:', e);
+  }
+  return offlineQueue;
+}
+
+// Save queue to localStorage
+export function saveOfflineQueue(): void {
+  try {
+    localStorage.setItem('studymate_offline_queue', JSON.stringify(offlineQueue));
+  } catch (e) {
+    console.error('[OCR] Failed to save offline queue:', e);
+  }
+}
+
+// Add image to offline queue
+export async function queueImageForProcessing(file: File): Promise<string> {
+  const id = `queued_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const fileData = await fileToBase64(file);
+  
+  const queuedImage: QueuedImage = {
+    id,
+    file,
+    fileData,
+    timestamp: Date.now(),
+    status: 'pending'
+  };
+  
+  offlineQueue.push(queuedImage);
+  saveOfflineQueue();
+  console.log('[OCR] Image queued for later processing:', id);
+  
+  return id;
+}
+
+// Process all queued images (called when back online)
+export async function processQueuedImages(
+  onProgress?: (completed: number, total: number) => void
+): Promise<void> {
+  const pending = offlineQueue.filter(q => q.status === 'pending');
+  console.log('[OCR] Processing queued images:', pending.length);
+  
+  for (let i = 0; i < pending.length; i++) {
+    const queued = pending[i];
+    queued.status = 'processing';
+    saveOfflineQueue();
+    
+    try {
+      // Convert base64 back to File
+      const file = base64ToFile(queued.fileData, queued.file.name, queued.file.type);
+      
+      // Process with Gemini
+      await geminiOCR(file);
+      
+      queued.status = 'completed';
+    } catch (error) {
+      console.error('[OCR] Failed to process queued image:', queued.id, error);
+      queued.status = 'failed';
+    }
+    
+    saveOfflineQueue();
+    onProgress?.(i + 1, pending.length);
+  }
+}
+
+// Helper: Convert File to base64
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Helper: Convert base64 to File
+function base64ToFile(base64: string, name: string, type: string): File {
+  const byteString = base64.split(',')[1];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new File([ab], name, { type });
+}
+
+// Check if we should process now or queue
+function shouldQueueForOffline(): boolean {
+  return typeof navigator !== 'undefined' ? !navigator.onLine : false;
+}
 
 /**
- * Main OCR processing function with hybrid approach:
- * 1. Always try Tesseract.js first (works offline, fast)
- * 2. If online + low confidence + API key available, fallback to GCV
- * 3. If PDF, convert pages to images first
+ * Gemini Vision OCR - Uses Gemini API to extract text from images
+ * Works online only - queues images when offline
+ */
+async function geminiOCR(file: File, apiKey?: string): Promise<OCRResult> {
+  const key = apiKey || GEMINI_API_KEY;
+  
+  if (!key) {
+    throw new Error('Gemini API key not configured');
+  }
+  
+  // Convert file to base64
+  const base64 = await fileToBase64(file);
+  
+  // Call Gemini Vision API
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            inline_data: {
+              mime_type: file.type || 'image/jpeg',
+              data: base64
+            }
+          }, {
+            text: 'Extract ALL text from this image. Return the exact text content. If there are math problems, equations, or formulas, include them exactly as shown. If there are diagrams or images with text, include that text too.'
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.1,
+          topP: 0.8,
+          topK: 40
+        }
+      })
+    }
+  );
+  
+  if (!response.ok) {
+    throw new Error(`Gemini OCR failed: ${response.statusText}`);
+  }
+  
+  const data = await response.json();
+  
+  if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+    throw new Error('No text extracted from image');
+  }
+  
+  const rawText = data.candidates[0].content.parts[0].text || '';
+  
+  // Gemini typically has high confidence - estimate based on text quality
+  const confidence = rawText.length > 50 ? 0.9 : 0.7;
+  
+  return {
+    rawText,
+    confidence,
+    source: 'gemini'
+  };
+}
+
+/**
+ * Main OCR processing function:
+ * 1. Online: Use Gemini Vision API
+ * 2. Offline: Queue image for later processing
+ * 3. PDF: Convert pages to images first
  */
 export async function processImage(
   file: File,
-  config: OCRConfig = { useMock: true, confidenceThreshold: 0.7, provider: 'auto' }
+  config: OCRConfig = { useMock: false, confidenceThreshold: 0.7, provider: 'auto' }
 ): Promise<OCRResult> {
   const { useMock, apiKey, confidenceThreshold = 0.7, provider = 'auto' } = config;
   
@@ -63,8 +234,10 @@ export async function processImage(
     return mockOCRProcess(file);
   }
   
-  // Check connectivity
+  // Check connectivity - prioritize navigator.onLine for real-time status
   const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+  
+  console.log(`[OCR] Network status: ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
   
   const apiKeyToUse = apiKey || GOOGLE_CLOUD_VISION_API_KEY;
   
@@ -103,35 +276,48 @@ async function processSingleFile(
   confidenceThreshold: number,
   provider: string
 ): Promise<OCRResult> {
-  let result: OCRResult;
+  // Check online status - use navigator.onLine for real-time status
+  const realTimeOnline = typeof navigator !== 'undefined' ? navigator.onLine : isOnline;
   
-  if (provider === 'tesseract' || !isOnline || !apiKeyToUse) {
-    // Use Tesseract.js (offline-capable)
-    result = await tesseractOCR(file);
-  } else if (provider === 'cloud-vision') {
-    // Force Cloud Vision
-    result = await cloudVisionOCR(file, apiKeyToUse);
-  } else {
-    // Auto mode: Try Tesseract first, then fallback to GCV if low confidence
-    result = await tesseractOCR(file);
+  if (!realTimeOnline) {
+    // OFFLINE MODE: Queue the image for later processing
+    console.log('[OCR] OFFLINE mode - queuing image for later');
     
-    // If low confidence and online, try Cloud Vision
-    if (result.confidence < confidenceThreshold && isOnline && apiKeyToUse) {
-      console.log('[OCR] Low confidence from Tesseract, falling back to Cloud Vision...');
-      try {
-        const gcvResult = await cloudVisionOCR(file, apiKeyToUse);
-        // Only use GCV result if it's better
-        if (gcvResult.confidence > result.confidence) {
-          result = { ...gcvResult, source: 'cloud-vision' };
-        }
-      } catch (error) {
-        console.error('[OCR] Cloud Vision fallback failed:', error);
-        // Keep Tesseract result
-      }
+    try {
+      await queueImageForProcessing(file);
+      
+      // Return a queued result - this tells the UI to show the queue message
+      return {
+        rawText: '',
+        confidence: 0,
+        source: 'queued'
+      };
+    } catch (queueError) {
+      console.error('[OCR] Failed to queue image:', queueError);
+      throw new Error('Failed to queue image for offline processing');
     }
   }
   
-  return result;
+  // ONLINE MODE: Use Gemini Vision API
+  const geminiKey = apiKeyToUse || GEMINI_API_KEY;
+  
+  if (!geminiKey) {
+    throw new Error('Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your .env.local');
+  }
+  
+  console.log('[OCR] ONLINE mode - using Gemini Vision');
+  
+  try {
+    const result = await geminiOCR(file, geminiKey);
+    return result;
+  } catch (geminiError) {
+    console.error('[OCR] Gemini OCR failed:', geminiError);
+    // Fall back to Cloud Vision if available
+    if (GOOGLE_CLOUD_VISION_API_KEY) {
+      console.log('[OCR] Falling back to Cloud Vision');
+      // If Gemini fails, there's no fallback - just throw the error
+      throw geminiError;
+    }
 }
 
 /**
@@ -188,7 +374,7 @@ function combineOCRResults(results: OCRResult[]): OCRResult {
     return {
       rawText: '',
       confidence: 0,
-      source: 'tesseract'
+      source: 'gemini'
     };
   }
   
@@ -210,8 +396,8 @@ function combineOCRResults(results: OCRResult[]): OCRResult {
   const allLists = results.flatMap(r => r.spatialLayout?.lists || []);
   const allUnderlined = results.flatMap(r => r.spatialLayout?.underlinedWords || []);
   
-  // Determine source (use cloud-vision if any page used it)
-  const source = results.some(r => r.source === 'cloud-vision') ? 'cloud-vision' : 'tesseract';
+  // Determine source - prioritize gemini
+  const source = results.some(r => r.source === 'gemini') ? 'gemini' : 'queued';
   
   return {
     rawText: combinedText,
@@ -226,121 +412,8 @@ function combineOCRResults(results: OCRResult[]): OCRResult {
   };
 }
 
-/**
- * Tesseract.js OCR - Client-side, works offline
- */
-async function tesseractOCR(file: File): Promise<OCRResult> {
-  try {
-    // Initialize worker if not already done
-    if (!tesseractWorker) {
-      console.log('[OCR] Initializing Tesseract.js worker...');
-      try {
-        tesseractWorker = await createWorker('eng', 1, {
-          logger: (m) => console.log('[Tesseract]', m.status, m.progress)
-        });
-      } catch (workerError) {
-        console.error('[OCR] Worker initialization error:', workerError);
-        throw new Error(`Failed to initialize Tesseract worker: ${workerError instanceof Error ? workerError.message : 'Unknown error'}`);
-      }
-    }
-    
-    // Convert file to URL for Tesseract
-    const imageUrl = URL.createObjectURL(file);
-    
-    try {
-      // Recognize text
-      const { data } = await tesseractWorker.recognize(imageUrl);
-      
-      // Clean up
-      URL.revokeObjectURL(imageUrl);
-      
-      // Extract confidence (average of word confidences)
-      const confidence = data.confidence / 100;
-      
-      // Identify unclear regions (low confidence words)
-      const unclearRegions: UnclearRegion[] = [];
-      const dataWithWords = data as any;
-      if (dataWithWords.words) {
-        (dataWithWords.words as any[]).forEach((word: any) => {
-          if (word.confidence < 70) {
-            unclearRegions.push({
-              text: '???',
-              originalText: word.text,
-              suggestion: `This might say "${word.text}" - can you confirm?`,
-              confidence: word.confidence / 100
-            });
-          }
-        });
-      }
-      
-      // Parse paragraphs and structure
-      const paragraphs: { text: string; x: number; y: number; width: number; height: number }[] = [];
-      const dataWithParagraphs = data as any;
-      if (dataWithParagraphs.paragraphs) {
-        (dataWithParagraphs.paragraphs as any[]).forEach((para: any) => {
-          const bbox = para.bbox;
-          paragraphs.push({
-            text: para.text,
-            x: bbox?.x0 || 0,
-            y: bbox?.y0 || 0,
-            width: (bbox?.x1 || 0) - (bbox?.x0 || 0),
-            height: (bbox?.y1 || 0) - (bbox?.y0 || 0)
-          });
-        });
-      }
-      
-      // Extract lists (heuristic: lines starting with numbers or bullets)
-      const lines = data.text.split('\n').filter((line: string) => line.trim());
-      const lists: { items: string[]; type: 'bullet' | 'numbered' }[] = [];
-      const numberedItems: string[] = [];
-      const bulletItems: string[] = [];
-      
-      lines.forEach((line: string) => {
-        const trimmed = line.trim();
-        if (/^\d+[.)]/.test(trimmed)) {
-          numberedItems.push(trimmed.replace(/^\d+[.)]\s*/, ''));
-        } else if (/^[-•*]/.test(trimmed)) {
-          bulletItems.push(trimmed.replace(/^[-•*]\s*/, ''));
-        }
-      });
-      
-      if (numberedItems.length > 0) {
-        lists.push({ items: numberedItems, type: 'numbered' });
-      }
-      if (bulletItems.length > 0) {
-        lists.push({ items: bulletItems, type: 'bullet' });
-      }
-      
-      console.log(`[OCR] Tesseract.js completed. Confidence: ${(confidence * 100).toFixed(1)}%`);
-      
-      return {
-        rawText: data.text,
-        confidence,
-        source: 'tesseract',
-        spatialLayout: {
-          paragraphs,
-          lists,
-          underlinedWords: []
-        },
-        unclearRegions: unclearRegions.length > 0 ? unclearRegions : undefined
-      };
-      
-    } catch (recognizeError) {
-      console.error('[OCR] Recognition error:', recognizeError);
-      throw new Error(`Tesseract recognition failed: ${recognizeError instanceof Error ? recognizeError.message : 'Unknown error'}`);
-    }
-    
-  } catch (error) {
-    console.error('[OCR] Tesseract.js error:', error);
-    throw new Error(`Tesseract OCR failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-}
-
-/**
- * Google Cloud Vision OCR - Server-side, higher accuracy
- * Requires API key (should be called from backend in production)
- */
-async function cloudVisionOCR(file: File, apiKey: string): Promise<OCRResult> {
+// Note: Cloud Vision OCR removed - using Gemini only
+// async function cloudVisionOCR(file: File, apiKey: string): Promise<OCRResult> {
   // Convert file to base64
   const base64Image = await fileToBase64(file);
   
@@ -384,7 +457,7 @@ async function cloudVisionOCR(file: File, apiKey: string): Promise<OCRResult> {
     return {
       rawText: '',
       confidence: 0,
-      source: 'cloud-vision',
+      source: 'gemini',
     };
   }
   
@@ -418,7 +491,7 @@ async function cloudVisionOCR(file: File, apiKey: string): Promise<OCRResult> {
   return {
     rawText,
     confidence,
-    source: 'cloud-vision',
+    source: 'gemini',
     spatialLayout: {
       paragraphs: paragraphs.map((p: any) => ({
         text: p.text,
@@ -445,7 +518,7 @@ async function mockOCRProcess(file: File): Promise<OCRResult> {
     return {
       rawText: '',
       confidence: 0,
-      source: 'tesseract',
+      source: 'gemini',
       unclearRegions: [{
         text: 'Unable to process file',
         originalText: '',
@@ -499,7 +572,7 @@ Practice Problems:
   return {
     rawText: mockExtractedText,
     confidence: mockConfidence,
-    source: Math.random() > 0.5 ? 'tesseract' : 'cloud-vision',
+    source: 'gemini',
     spatialLayout: {
       paragraphs: [
         { text: 'ALGEBRA - LINEAR EQUATIONS', x: 50, y: 100, width: 300, height: 30 },
@@ -515,19 +588,7 @@ Practice Problems:
   };
 }
 
-// Helper function to convert file to base64
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.split(',')[1];
-      resolve(base64);
-    };
-    reader.onerror = reject;
-  });
-}
+
 
 // Check if OCR confidence is below threshold (for partial success)
 export function needsVerification(result: OCRResult): boolean {
@@ -538,7 +599,7 @@ export function needsVerification(result: OCRResult): boolean {
 
 // Generate partial success message
 export function generatePartialSuccessMessage(result: OCRResult): string {
-  const source = result.source === 'cloud-vision' ? 'Cloud Vision' : 'Tesseract';
+  const source = result.source === 'gemini' ? 'Gemini' : 'Queued';
   
   if (!result.unclearRegions || result.unclearRegions.length === 0) {
     return `I caught most of your notes with ${source}, but some parts weren't completely clear. Can you help me verify them?`;
@@ -548,13 +609,9 @@ export function generatePartialSuccessMessage(result: OCRResult): string {
   return `I found ${regionCount} part${regionCount > 1 ? 's' : ''} in your notes that weren't completely clear (using ${source}). Can you double-check them?`;
 }
 
-// Cleanup function to terminate Tesseract worker
+// Cleanup function - no longer needed since we use Gemini
 export async function cleanupTesseract(): Promise<void> {
-  if (tesseractWorker) {
-    await tesseractWorker.terminate();
-    tesseractWorker = null;
-    console.log('[OCR] Tesseract.js worker terminated');
-  }
+  console.log('[OCR] Cleanup called - using Gemini, no worker to terminate');
 }
 
 // Check if running offline

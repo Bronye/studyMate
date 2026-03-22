@@ -26,3 +26,7 @@ npm-debug.log*
 
 # Cache
 .cache/
+
+# Planning files (internal only)
+plans/
+bin/
