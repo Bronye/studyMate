@@ -15,6 +15,7 @@ export default function Home() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
   const [importError, setImportError] = useState('');
+  const [showShopPopup, setShowShopPopup] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // NEW: Quiz display state
@@ -23,25 +24,43 @@ export default function Home() {
   
   // Check if mobile screen
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  
+
+  // Notify layout about empty state so FABs can hide if necessary
   useEffect(() => {
-    loadQuizzes();
-  }, []);
-  
-  // Separate effect to handle import modal
+    if (!loading && quizzes.length === 0) {
+      window.dispatchEvent(new CustomEvent('empty-state-open'));
+    } else {
+      window.dispatchEvent(new CustomEvent('empty-state-close'));
+    }
+  }, [loading, quizzes.length]);
+
+  // Separate effect to handle import modal via query param
   useEffect(() => {
     if (searchParams.get('import') === 'true') {
       setShowImportModal(true);
+      window.dispatchEvent(new CustomEvent('import-modal-open'));
       // Clean up the URL without re-rendering
       window.history.replaceState({}, '', '/home');
     }
   }, [searchParams]);
+
+  // Listen for external requests to open the import modal (e.g. FAB on /home)
+  useEffect(() => {
+    const openHandler = () => {
+      console.log('[Home] open-import-modal received');
+      setShowImportModal(true);
+      window.dispatchEvent(new CustomEvent('import-modal-open'));
+    };
+    window.addEventListener('open-import-modal', openHandler as EventListener);
+    return () => window.removeEventListener('open-import-modal', openHandler as EventListener);
+  }, []);
+
+  const importModal = null; // placeholder; actual modal rendered after handlers to avoid hoisting issues
   
   const loadQuizzes = async () => {
     try {
@@ -53,6 +72,11 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  // Load quizzes on mount so quest cards render
+  useEffect(() => {
+    loadQuizzes();
+  }, []);
 
   // Handle JSON file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,12 +131,82 @@ export default function Home() {
       
       // Close modal and reset
       setShowImportModal(false);
+      window.dispatchEvent(new CustomEvent('import-modal-close'));
       setJsonInput('');
       alert('Quiz imported successfully!');
     } catch (err) {
       setImportError('Failed to import quiz: ' + (err as Error).message);
     }
   };
+
+  // Import Quiz Modal - rendered after handlers to ensure handlers exist
+  const importModalRendered = showImportModal ? (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <FileJson className="w-6 h-6 text-primary" strokeWidth={2.5} />
+            <h2 className="text-xl font-bold text-text-primary">Import Quiz JSON</h2>
+          </div>
+          <button 
+            onClick={() => { setShowImportModal(false); setJsonInput(''); setImportError(''); window.dispatchEvent(new CustomEvent('import-modal-close')); }}
+            className="p-2 hover:bg-slate-100 rounded-full"
+          >
+            <X className="w-5 h-5 text-text-secondary" strokeWidth={2.5} />
+          </button>
+        </div>
+        <p className="text-sm text-text-secondary mb-4">
+          Paste your quiz JSON below or upload a file. Required fields: quizId, topic, subject, questions[].
+        </p>
+        <div className="mb-4">
+          <input
+            type="file"
+            accept=".json"
+            onChange={handleFileUpload}
+            className="hidden"
+            id="json-file-upload"
+            ref={fileInputRef}
+          />
+          <label 
+            htmlFor="json-file-upload"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer text-sm font-medium text-text-secondary w-fit"
+          >
+            <FileJson className="w-4 h-4" strokeWidth={2.5} />
+            Upload JSON File
+          </label>
+        </div>
+        <textarea
+          value={jsonInput}
+          onChange={(e) => setJsonInput(e.target.value)}
+          placeholder='{"quizId": "unique_id", "topic": "Algebra Basics", "subject": "Mathematics", "points": 50, "isCompleted": false, "questions": [{"id": "q1", "text": "What is x if 2x + 5 = 15?", "options": [{"id": "a", "text": "x = 5"}, {"id": "b", "text": "x = 10"}], "correctOptionId": "a", "hint": "Subtract 5 from both sides first", "explanation": "2x + 5 - 5 = 15 - 5...", "cognitiveLevel": "apply"}]}'
+          className="w-full h-48 p-3 border border-slate-200 rounded-lg font-mono text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none resize-none"
+        />
+        {importError && (
+          <p className="text-error text-sm mt-2">{importError}</p>
+        )}
+        <div className="flex gap-3 mt-4">
+          <button 
+            onClick={() => { setShowImportModal(false); setJsonInput(''); setImportError(''); window.dispatchEvent(new CustomEvent('import-modal-close')); }}
+            className="flex-1 px-4 py-2 border border-slate-200 rounded-lg font-medium text-text-secondary hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleImportQuiz}
+            disabled={!jsonInput.trim()}
+            className="flex-1 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Import Quiz
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  ) : null;
+
   
   const handleStartQuiz = (quiz: Quiz) => {
     navigate(`/quiz/${quiz.quizId}`);
@@ -130,6 +224,7 @@ export default function Home() {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 pb-20">
+        {importModalRendered}
         {/* Mobile Top Bar */}
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3">
           <div className="flex items-center justify-between">
@@ -196,40 +291,89 @@ export default function Home() {
           </div>
         </div>
         
-        {/* FABs for mobile */}
-        <motion.button
-          onClick={() => navigate('/notes')}
-          className="fixed bottom-20 right-4 w-12 h-12 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-lg flex items-center justify-center z-40"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <StickyNote className="w-5 h-5" />
-        </motion.button>
-        
         {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-100 px-4 py-2 z-50">
-          <div className="flex items-center justify-around">
+          <div className="flex items-center justify-between px-8">
             <button onClick={() => navigate('/profile')} className="flex flex-col items-center p-2">
               <UserIcon className="w-6 h-6 text-text-secondary" />
               <span className="text-[10px] text-text-secondary">Profile</span>
             </button>
-            <button onClick={() => {}} className="flex flex-col items-center p-2">
+            <button onClick={() => setShowShopPopup(true)} className="flex flex-col items-center p-2">
               <ShoppingBag className="w-6 h-6 text-text-secondary" />
               <span className="text-[10px] text-text-secondary">Shop</span>
             </button>
-            <button onClick={() => navigate('/home')} className="flex flex-col items-center p-2">
-              <HomeIcon className="w-6 h-6 text-primary" />
-              <span className="text-[10px] text-primary font-bold">Home</span>
-            </button>
           </div>
         </nav>
+
+        {/* Shop Coming Soon Popup - Mobile */}
+        {showShopPopup && (
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setShowShopPopup(false)}
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center">
+                <ShoppingBag className="w-12 h-12 text-primary mx-auto mb-4" strokeWidth={2} />
+                <h2 className="text-xl font-bold text-text-primary mb-2">Coming Soon!</h2>
+                <p className="text-text-secondary">
+                  Hello, this feature is coming soon... keep saving those gems and XP!
+                </p>
+                <button 
+                  onClick={() => setShowShopPopup(false)}
+                  className="mt-4 px-6 py-2 bg-primary text-white rounded-lg font-medium"
+                >
+                  Got it!
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
       </div>
     );
   }
+
   
+
   // Desktop layout (original)
   return (
-    <div className="p-4 space-y-6">
+    <>
+      {importModalRendered}
+      <div className="p-4 space-y-6">
+      {/* Shop Coming Soon Popup - Desktop */}
+      {showShopPopup && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setShowShopPopup(false)}
+        >
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center">
+              <ShoppingBag className="w-12 h-12 text-primary mx-auto mb-4" strokeWidth={2} />
+              <h2 className="text-xl font-bold text-text-primary mb-2">Coming Soon!</h2>
+              <p className="text-text-secondary">
+                Hello, this feature is coming soon... keep saving those gems and XP!
+              </p>
+              <button 
+                onClick={() => setShowShopPopup(false)}
+                className="mt-4 px-6 py-2 bg-primary text-white rounded-lg font-medium"
+              >
+                Got it!
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Header with Avatar, Student Profile, Quest Hub and Offline Mode */}
       <header className="flex items-start gap-3">
         {/* Avatar with Level Badge - Left side */}
@@ -309,7 +453,7 @@ export default function Home() {
         <motion.button
           className="stat-card flex flex-col items-center justify-center"
           whileHover={{ scale: 1.05 }}
-          onClick={() => navigate('/profile')}
+          onClick={() => setShowShopPopup(true)}
         >
           <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center mb-1">
             <ShoppingBag className="w-6 h-6 text-emerald-600" strokeWidth={2.5} />
@@ -341,6 +485,7 @@ export default function Home() {
         </motion.div>
       </div>
       
+
       {/* Quest Map */}
       <div>
         <h2 className="text-lg font-bold text-text-primary mb-4">Your Quests</h2>
@@ -393,7 +538,7 @@ export default function Home() {
               className="flex flex-col sm:flex-row gap-3 justify-center"
             >
               <button
-                onClick={() => setShowImportModal(true)}
+                onClick={() => { setShowImportModal(true); window.dispatchEvent(new CustomEvent('import-modal-open')); }}
                 className="btn-primary flex items-center justify-center gap-2"
               >
                 <FileJson className="w-5 h-5" strokeWidth={2} />
@@ -405,15 +550,6 @@ export default function Home() {
               >
                 <Camera className="w-5 h-5" strokeWidth={2} />
                 Snap to Study
-              </button>
-              {/* NEW: Third FAB for past notes */}
-              <button
-                onClick={() => navigate('/note-upload')}
-                className="btn-secondary flex items-center justify-center gap-2"
-                style={{ backgroundColor: 'var(--theme-secondary)' }}
-              >
-                <History className="w-5 h-5" strokeWidth={2} />
-                Past Notes
               </button>
             </motion.div>
           </div>
@@ -600,81 +736,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Import Quiz Modal */}
-      {showImportModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <FileJson className="w-6 h-6 text-primary" strokeWidth={2.5} />
-                <h2 className="text-xl font-bold text-text-primary">Import Quiz JSON</h2>
-              </div>
-              <button 
-                onClick={() => { setShowImportModal(false); setJsonInput(''); setImportError(''); }}
-                className="p-2 hover:bg-slate-100 rounded-full"
-              >
-                <X className="w-5 h-5 text-text-secondary" strokeWidth={2.5} />
-              </button>
-            </div>
-            
-            <p className="text-sm text-text-secondary mb-4">
-              Paste your quiz JSON below or upload a file. Required fields: quizId, topic, subject, questions[].
-            </p>
-            
-            {/* File Upload */}
-            <div className="mb-4">
-              <input
-                type="file"
-                accept=".json"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="json-file-upload"
-                ref={fileInputRef}
-              />
-              <label 
-                htmlFor="json-file-upload"
-                className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer text-sm font-medium text-text-secondary w-fit"
-              >
-                <FileJson className="w-4 h-4" strokeWidth={2.5} />
-                Upload JSON File
-              </label>
-            </div>
-            
-            {/* JSON Input */}
-            <textarea
-              value={jsonInput}
-              onChange={(e) => setJsonInput(e.target.value)}
-              placeholder='{"quizId": "unique_id", "topic": "Algebra Basics", "subject": "Mathematics", "points": 50, "isCompleted": false, "questions": [{"id": "q1", "text": "What is x if 2x + 5 = 15?", "options": [{"id": "a", "text": "x = 5"}, {"id": "b", "text": "x = 10"}], "correctOptionId": "a", "hint": "Subtract 5 from both sides first", "explanation": "2x + 5 - 5 = 15 - 5...", "cognitiveLevel": "apply"}]}'
-              className="w-full h-48 p-3 border border-slate-200 rounded-lg font-mono text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none resize-none"
-            />
-            
-            {importError && (
-              <p className="text-error text-sm mt-2">{importError}</p>
-            )}
-            
-            {/* Actions */}
-            <div className="flex gap-3 mt-4">
-              <button 
-                onClick={() => { setShowImportModal(false); setJsonInput(''); setImportError(''); }}
-                className="flex-1 px-4 py-2 border border-slate-200 rounded-lg font-medium text-text-secondary hover:bg-slate-50"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleImportQuiz}
-                disabled={!jsonInput.trim()}
-                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Import Quiz
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
+    </>
   );
 }

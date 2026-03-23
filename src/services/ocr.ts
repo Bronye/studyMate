@@ -196,7 +196,16 @@ async function geminiOCR(file: File, apiKey?: string): Promise<OCRResult> {
   );
   
   if (!response.ok) {
-    throw new Error(`Gemini OCR failed: ${response.statusText}`);
+    // Try to get more error details from response
+    let errorDetails = '';
+    try {
+      const errorData = await response.json();
+      errorDetails = JSON.stringify(errorData);
+      console.error('[OCR] Gemini API error response:', errorData);
+    } catch {
+      errorDetails = await response.text();
+    }
+    throw new Error(`Gemini OCR failed: ${response.status} - ${response.statusText}. Details: ${errorDetails}`);
   }
   
   const data = await response.json();
