@@ -59,7 +59,8 @@ export default function Layout() {
       {/* Floating Action Buttons - Side column on mobile, centered on desktop */}
       {(!shouldHideFab && !hideDueToModalOrEmptyState) && (
       <motion.div 
-        className="fixed z-50 flex gap-4 md:flex-row flex-col bottom-8 right-4 md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:top-auto md:right-auto"
+        className="fixed flex gap-4 md:flex-row flex-col right-4 md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:top-auto md:right-auto"
+        style={{ bottom: 'calc(7.5rem + env(safe-area-inset-bottom))', zIndex: 90 }}
         initial={{ x: 100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ 

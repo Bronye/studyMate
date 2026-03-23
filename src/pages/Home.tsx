@@ -220,20 +220,25 @@ export default function Home() {
   
   const avatar = currentStudent?.avatar;
   
+  // helper: split array into chunks of given size
+  const chunkArray = <T,>(arr: T[], size: number): T[][] => {
+    const res: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) res.push(arr.slice(i, i + size));
+    return res;
+  };
+  
   // Mobile layout
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 pb-20">
+      <div className="h-screen bg-gradient-to-br from-primary/5 to-accent/5 overflow-hidden" style={{ ['--header-height' as any]: '64px', ['--bottom-nav-height' as any]: '64px', ['--tip-height' as any]: '72px' }}>
         {importModalRendered}
         {/* Mobile Top Bar */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3">
-          <div className="flex items-center justify-between">
-            {/* Gems - Left */}
+        <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4" style={{ height: 'var(--header-height)' }}>
+          <div className="flex items-center justify-between h-full">
             <div className="flex items-center gap-1">
               <Gem className="w-5 h-5 text-accent" />
               <span className="font-black text-accent">{currentStudent?.gems || 0}</span>
             </div>
-            {/* Lobby - Center */}
             <div className="flex flex-col items-center">
               <span className="font-black text-text-primary">LOBBY</span>
               <div className="flex items-center gap-1">
@@ -241,58 +246,64 @@ export default function Home() {
                 <span className="text-[10px]">{isOnline ? 'Online' : 'Offline'}</span>
               </div>
             </div>
-            {/* Streak - Right */}
             <div className="flex items-center gap-1">
               <Flame className="w-5 h-5 text-highlight" />
               <span className="font-black text-highlight">{currentStudent?.streak || 0}</span>
             </div>
           </div>
         </header>
-        
-        {/* Main Content */}
-        <div className="pt-20 px-2 space-y-4">
-          {/* Quest Carousel */}
-          <div className="w-full overflow-x-auto scrollbar-hide py-2">
-            <div className="flex gap-3 px-2" style={{ minWidth: 'max-content' }}>
-              {quizzes.length === 0 ? (
-                <div className="w-72 flex-shrink-0 bg-white/80 rounded-xl p-4 text-center">
-                  <p className="text-text-secondary text-sm">No quests yet</p>
-                </div>
-              ) : (
-                quizzes.slice(0, 6).map((quiz) => (
-                  <motion.button
-                    key={quiz.quizId}
-                    onClick={() => navigate(`/quiz/${quiz.quizId}`)}
-                    className="w-64 flex-shrink-0 bg-white rounded-xl p-4 text-left shadow-md"
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <h3 className="font-bold text-text-primary truncate">{quiz.topic}</h3>
-                    <p className="text-xs text-text-secondary">{quiz.subject}</p>
-                  </motion.button>
-                ))
-              )}
-            </div>
-          </div>
-          
-          {/* Tips Section */}
-          <div className="px-2">
-            <div className="bg-white/80 backdrop-blur rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <Lightbulb className="w-5 h-5 text-accent flex-shrink-0" />
-                <p className="text-sm text-text-primary">
-                  {currentStudent?.persona.personaType === 'visual' 
-                    ? 'Try using diagrams to understand concepts!'
-                    : currentStudent?.persona.personaType === 'auditory'
-                    ? 'Read aloud to improve retention!'
-                    : 'Practice with hands-on exercises!'}
-                </p>
+
+        {/* Content area sized to fit between header, tip, and bottom nav */}
+        <div style={{ height: 'calc(100vh - var(--header-height) - var(--bottom-nav-height) - var(--tip-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom))' }} className="px-2 pt-2 overflow-hidden">
+          {/* Horizontal columns - each column is a vertical stack of 3 cards */}
+          <div className="h-full flex items-stretch">
+            {quizzes.length === 0 ? (
+              <div className="w-full h-full bg-white/80 rounded-xl p-4 text-center flex items-center justify-center">
+                <p className="text-text-secondary text-sm">No quests yet</p>
               </div>
-            </div>
+            ) : (
+              <div className="h-full overflow-x-auto flex gap-4 px-3 snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
+                {chunkArray(unattemptedQuizzes, 3).slice(0, 8).map((col, idx) => (
+                  <div key={idx} className="flex-shrink-0" style={{ flex: '0 0 86%', height: '100%', scrollSnapAlign: 'center' }}>
+                    <div className="flex flex-col gap-3 h-full">
+                      {col.map((quiz) => (
+                        <motion.button
+                          key={quiz.quizId}
+                          onClick={() => navigate(`/quiz/${quiz.quizId}`)}
+                          className="bg-white rounded-lg p-3 text-left shadow-sm flex-1 overflow-hidden"
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className="w-full h-8 flex items-center justify-center mb-1">
+                            {quiz.subject === 'Mathematics' ? <Calculator className="w-5 h-5 text-green-600" /> : quiz.subject === 'English' ? <BookOpen className="w-5 h-5 text-blue-600" /> : <GraduationCap className="w-5 h-5 text-purple-600" />}
+                          </div>
+                          <h3 className="font-semibold text-sm text-text-primary truncate">{quiz.topic}</h3>
+                          <p className="text-xs text-text-secondary truncate">{quiz.subject}</p>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-        
+
+        {/* Tips Section - sits above bottom nav */}
+        <div className="px-2" style={{ height: 'var(--tip-height)' }}>
+          <div className="bg-white/80 backdrop-blur rounded-xl p-3 h-full flex items-center gap-3">
+            <Lightbulb className="w-5 h-5 text-accent flex-shrink-0" />
+            <p className="text-sm text-text-primary truncate">
+              {currentStudent?.persona.personaType === 'visual' 
+                ? 'Try using diagrams to understand concepts!'
+                : currentStudent?.persona.personaType === 'auditory'
+                ? 'Read aloud to improve retention!'
+                : 'Practice with hands-on exercises!'}
+            </p>
+          </div>
+        </div>
+
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-100 px-4 py-2 z-50">
+        <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-100 px-4 py-2 z-40" style={{ height: 'var(--bottom-nav-height)' }}>
           <div className="flex items-center justify-between px-8">
             <button onClick={() => navigate('/profile')} className="flex flex-col items-center p-2">
               <UserIcon className="w-6 h-6 text-text-secondary" />
