@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { Quiz, LearningPersona, db, NoteUpload } from '../db/database';
-import { processImage, OCRResult, needsVerification, UnclearRegion } from '../services/ocr';
+import { processImage, OCRResult, needsVerification, UnclearRegion } from '../services/ocrMock';
 import { generateQuizFromNotes, QuizGenerationResult, StudyTip } from '../services/quizGenerator';
 import { generateUniqueId } from '../utils/generateId';
 import { useGamificationStore } from './gamificationStore';
@@ -225,7 +225,8 @@ export const useNoteUploadStore = create<NoteUploadStore>((set, get) => ({
       // Step 1: OCR Processing
       set({ state: 'scanning', errorMessage: '' });
       
-      const ocrResult: OCRResult = await processImage(selectedFile, { useMock: false });
+      // Use mock OCR for demo mode when no GEMINI_API_KEY is configured
+      const ocrResult: OCRResult = await processImage(selectedFile, { useMock: !GEMINI_API_KEY, apiKey: GEMINI_API_KEY });
       
       // Check if image was queued for offline processing
       if (ocrResult.source === 'queued') {
