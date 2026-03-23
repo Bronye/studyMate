@@ -14,6 +14,21 @@ export interface LearningPersona {
     criticalThinking: number;
     eqBaseline: 'encouraging' | 'direct' | 'analytic';
   };
+  // Psychometric profiling fields
+  cognitiveDepth?: number; // From Task 1: Gist vs Why
+  pressureTolerance?: number; // From Task 2: Math speed-run
+  studentClass?: 'Scholar' | 'Speedster' | 'Tactician' | 'Zen Learner';
+  telemetry?: {
+    initiationLag?: number; // Time from mount to first interaction
+    clickFreqHz?: number; // Clicks per second
+    cursorDelta?: number; // Pixels traveled vs shortest path
+    backspaceCount?: number; // Deletions before submit
+    gistHoverTime?: number; // Time hovering over Gist button
+    whyHoverTime?: number; // Time hovering over Why button
+    gistToWhyToggle?: boolean; // Did they switch from Gist to Why?
+    mathInputVelocity?: number; // Typing speed during timer
+    errorCount?: number; // Wrong answers under pressure
+  };
   subjectStrengths: {
     subject: string;
     proficiency: number;
