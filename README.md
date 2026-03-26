@@ -1,4 +1,4 @@
-# 🛡️ Learn Arena: Make Learning Addictive
+# 🛡️ studyMate: Make Learning Addictive
 
 ---
 
@@ -21,7 +21,9 @@ Traditional study apps can be boring. They can feel like digital textbooks. **Le
 - **Snap to Study:** Uses Vision AI to OCR textbook photos and instantly generate interactive mission-based quizzes and study material.
 - **Telemetry (Local Persistence):** We use a local login and Dexie.js. Your rank, XP, and gems are saved locally on your device. Even if you lose signal, the arena stays active.
 - **Quest Uploads:** A localized hub for uploading quests (quizzes) locally.
-
+--------TO come soon---------
+  - local language support.
+  - 
 ### 🚀 Developer Setup
 
 If you want to run this tool:
